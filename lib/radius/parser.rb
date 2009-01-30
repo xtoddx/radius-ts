@@ -33,7 +33,13 @@ module Radius
     protected
 
       def pre_parse(text) # :nodoc:
-        re = %r{<#{@tag_prefix}:([\w:]+?)(\s+(?:\w+\s*=\s*(?:"[^"]*?"|'[^']*?')\s*)*|)>|</#{@tag_prefix}:([\w:]+?)\s*>}
+        re = %r{
+            <#{@tag_prefix}:([\w:]+?)(
+              \s+(?:\w+\s*=\s*(?:"[^"]*?"|'[^']*?')\s*)*
+            |)>
+          |
+            </#{@tag_prefix}:([\w:]+?)\s*>
+        }x
         if md = re.match(text)
           start_tag, attr, end_tag = $1, $2, $3
           @stack.last.contents << ParseTag.new { parse_individual(md.pre_match) }
