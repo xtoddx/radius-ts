@@ -10,6 +10,8 @@
 	  @attrs[@nat] = @vat 
 	}
 	
+	action prematch { @prematch = data[0..p-1] }
+	
 	action _nameattr { mark_nat = p }
 	action nameattr { @nat = data[mark_nat..p-1] }
 	action _valattr { mark_vat = p }
@@ -41,17 +43,23 @@
 	OpenOrSelfTag = "<" Name Attrs (SelfClose | Trailer);
 	CloseTag = "</" Name space* ">" %closetag;
 	
-	main := OpenOrSelfTag | CloseTag;
+	PreMatch = (^"<")* %prematch;
+	
+	main := PreMatch (OpenOrSelfTag | CloseTag)?;
 }%%
 
 module Radius
   class Scanner
+    attr_reader :prefix, :starttag, :attrs, :flavor, :prematch
+    
     def initialize(data)
       @data = data
+      @prematch = nil
     	@prefix = nil
     	@starttag = nil
     	@attrs = {}
     	@flavor = :tasteless
+    	@cursor = 0
     end
     
     def parse
@@ -59,7 +67,11 @@ module Radius
     end
     
     def inspect
-      "<Radius::Scanner prefix=#{@prefix.inspect} tag=#{@starttag.inspect} flavor=#{@flavor.inspect} attrs=#{@attrs.inspect}>"
+      "<Radius::Scanner prefix=#{@prefix.inspect} tag=#{@starttag.inspect} flavor=#{@flavor.inspect} cursor=#{@cursor} attrs=#{@attrs.inspect}>"
+    end
+    
+    def leftover
+      @data[@cursor..-1]
     end
     
     private
@@ -71,6 +83,7 @@ module Radius
     	%% write data;
     	%% write init;
     	%% write exec;
+    	@cursor = p
     end
   end
 end
