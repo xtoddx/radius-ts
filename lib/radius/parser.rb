@@ -59,12 +59,12 @@ module Radius
           @stack.last.contents << replace
         when :close
           popped = @stack.pop
-          raise MissingEndTagError.new(popped.name) if popped.name != t.starttag
+          raise MissingEndTagError.new(popped.name, @stack) if popped.name != t.starttag
           popped.on_parse { |b| @context.render_tag(popped.name, popped.attributes) { b.contents.to_s } }
           @stack.last.contents << popped
         end
       end
-      raise MissingEndTagError.new(@stack.last.name) if @stack.length > 1
+      raise MissingEndTagError.new(@stack.last.name, @stack) if @stack.length != 1
     end
   end
 end
