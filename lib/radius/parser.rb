@@ -33,25 +33,21 @@ module Radius
     protected
 
       def pre_parse(text) # :nodoc:
-        re = %r{
-            <#{@tag_prefix}:([\w:]+?)(
-              \s+(?:\w+\s*=\s*(?:"[^"]*?"|'[^']*?')\s*)*
-            |)>
-          |
-            </#{@tag_prefix}:([\w:]+?)\s*>
-        }x
-        if md = re.match(text)
-          start_tag, attr, end_tag = $1, $2, $3
-          @stack.last.contents << ParseTag.new { parse_individual(md.pre_match) }
-          remaining = md.post_match
-          if start_tag
+        s = Scanner.new(text)
+        s.parse
+        if s.flavor != :self && 
+          start_tag = s.starttag
+          attr = s.attrs
+          @stack.last.contents << ParseTag.new { parse_individual(s.preparse) }
+          remaining = s.leftover
+          if s.flavor == :open
             parse_start_tag(start_tag, attr, remaining)
           else
-            parse_end_tag(end_tag, remaining)
+            parse_end_tag(start_tag, remaining)
           end
         else
           if @stack.length == 1
-            @stack.last.contents << ParseTag.new { parse_individual(text) }
+            @stack.last.contents << ParseTag.new { parse_individual(s.preparse) }
           else
             raise MissingEndTagError.new(@stack.last.name)
           end
@@ -76,7 +72,11 @@ module Radius
       end
 
       def parse_individual(text) # :nodoc:
-        re = %r{<#{@tag_prefix}:([\w:]+?)(\s+(?:\w+\s*=\s*(?:"[^"]*?"|'[^']*?')\s*)*|)/>}
+        re = %r{
+          <#{@tag_prefix}:([\w:]+?)\s*(
+            (?:\w+\s*=\s*(?:"[^"]*?"|'[^']*?')\s*)*
+          |)/>
+        }x
         if md = re.match(text)
           attr = parse_attributes($2)
           replace = @context.render_tag($1, attr)
