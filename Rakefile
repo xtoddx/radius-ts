@@ -18,6 +18,13 @@ RDOC_EXTRAS = ["README", "QUICKSTART", "ROADMAP", "CHANGELOG"]
 
 task :default => :test
 
+desc 'turn the pre_parse.rl file into a ruby file'
+file 'lib/radius/parser/pre_parse.rb' => ['lib/radius/parser/pre_parse.rl'] do |t|
+  cd 'lib/radius/parser' do
+    sh "ragel -R pre_parse.rl"
+  end
+end
+
 Rake::TestTask.new do |t| 
   t.pattern = 'test/**/*_test.rb'
 end
