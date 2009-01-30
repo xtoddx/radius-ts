@@ -10,7 +10,7 @@
 	  @attrs[@nat] = @vat 
 	}
 	
-	action prematch { @prematch = data[0..p-1] }
+	action prematch { @prematch = data[0..p] if p > 0 }
 	
 	action _nameattr { mark_nat = p }
 	action nameattr { @nat = data[mark_nat..p-1] }
@@ -54,7 +54,7 @@ module Radius
     
     def initialize(data)
       @data = data
-      @prematch = nil
+      @prematch = ''
     	@prefix = nil
     	@starttag = nil
     	@attrs = {}

@@ -8,7 +8,7 @@ module Radius
     
     def initialize(data)
       @data = data
-      @prematch = nil
+      @prematch = ''
     	@prefix = nil
     	@starttag = nil
     	@attrs = {}
@@ -439,7 +439,7 @@ when 5 then
 when 6 then
 # line 13 "pre_parse.rl"
 		begin
- @prematch = data[0..p-1] 		end
+ @prematch = data[0..p] if p > 0 		end
 # line 13 "pre_parse.rl"
 when 7 then
 # line 15 "pre_parse.rl"
@@ -492,7 +492,7 @@ when 10 then
 when 6 then
 # line 13 "pre_parse.rl"
 		begin
- @prematch = data[0..p-1] 		end
+ @prematch = data[0..p] if p > 0 		end
 # line 13 "pre_parse.rl"
 when 11 then
 # line 20 "pre_parse.rl"
