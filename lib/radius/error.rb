@@ -20,4 +20,11 @@ module Radius
       super("undefined tag `#{tag_name}'")
     end
   end
+  
+  # Occurs when the scanner failed to parse something.
+  class TastelessTagError < ParseError
+    def initialize(tag, stack)
+      super("internal error with tag #{tag.inspect} and stack #{stack.inspect}")
+    end
+  end
 end

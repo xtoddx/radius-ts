@@ -54,6 +54,8 @@ module Radius
           raise MissingEndTagError.new(popped.name, @stack) if popped.name != t[:name]
           popped.on_parse { |b| @context.render_tag(popped.name, popped.attributes) { b.contents.to_s } }
           @stack.last.contents << popped
+        when :tasteless
+          raise TastelessTagError.new(popped, @stack)
         end
       end
       raise MissingEndTagError.new(@stack.last.name, @stack) if @stack.length != 1
