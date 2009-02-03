@@ -3,6 +3,14 @@ module Radius
   class ParseError < StandardError
   end
   
+  # Occurs when the Parser expects an end tag for one tag and finds the end tag for another.
+  class WrongEndTagError < ParseError
+    def initialize(expected_tag, got_tag, stack)
+      stack_message = " with stack #{stack.inspect}" if stack
+      super("wrong end tag `#{got_tag}' found for start tag `#{expected}'#{stack_message}")
+    end
+  end
+  
   # Occurs when Parser cannot find an end tag for a given tag in a template or when
   # tags are miss-matched in a template.
   class MissingEndTagError < ParseError
@@ -21,10 +29,15 @@ module Radius
     end
   end
   
-  # Occurs when the scanner failed to parse something.
-  class TastelessTagError < ParseError
+  class TastelessTagError < ParseError #:nodoc:
     def initialize(tag, stack)
-      super("internal error with tag #{tag.inspect} and stack #{stack.inspect}")
+      super("internal error with tasteless tag #{tag.inspect} and stack #{stack.inspect}")
+    end
+  end
+  
+  class UndefinedFlavorError < ParseError #:nodoc:
+    def initialize(tag, stack)
+      super("internal error with unknown flavored tag #{tag.inspect} and stack #{stack.inspect}")
     end
   end
 end

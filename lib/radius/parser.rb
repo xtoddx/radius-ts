@@ -51,11 +51,13 @@ module Radius
           @stack.last.contents << replace
         when :close
           popped = @stack.pop
-          raise MissingEndTagError.new(popped.name, @stack) if popped.name != t[:name]
+          raise WrongEndTagError.new(popped.name, t[:name], @stack) if popped.name != t[:name]
           popped.on_parse { |b| @context.render_tag(popped.name, popped.attributes) { b.contents.to_s } }
           @stack.last.contents << popped
         when :tasteless
-          raise TastelessTagError.new(popped, @stack)
+          raise TastelessTagError.new(t, @stack)
+        else
+          raise UndefinedFlavorError.new(t, @stack)
         end
       end
       raise MissingEndTagError.new(@stack.last.name, @stack) if @stack.length != 1
