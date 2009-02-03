@@ -1,8 +1,13 @@
 %%{
 	machine parser;
 	
+	
 	action _prefix { mark_pfx = p }
-	action prefix { @prefix = data[mark_pfx..p-1] }
+	action prefix {
+	  if data[mark_pfx..p-1] != @prefix
+	    fnext Closeout;
+    end
+	}
 	action _starttag { mark_stg = p }
 	action starttag { @starttag = data[mark_stg..p-1] }
 	action _attr { mark_attr = p }
@@ -30,10 +35,14 @@
 	  fbreak;
 	}
 	
+	
+	Closeout := empty;
+	
 	# words
+	PrefixChar = [\-A-Za-z0-9._?] ;
 	NameChar = [\-A-Za-z0-9._:?] ;
 	TagName = NameChar* >_starttag %starttag;
-	Prefix = NameChar* >_prefix %prefix;
+	Prefix = PrefixChar* >_prefix %prefix;
 	
 	Name = Prefix ":" TagName;
 	
@@ -77,15 +86,14 @@
 
 module Radius
   class Scanner
-    def self.operate(data)
-      data = File.read('obstaclecourse.txt')
+    def self.operate(prefix, data)
       buf = ""
       csel = ""
       stack = []
       p = 0
       eof = data.length
       @prematch = ''
-      @prefix = nil
+      @prefix = prefix
       @starttag = nil
       @attrs = {}
       @flavor = :tasteless
