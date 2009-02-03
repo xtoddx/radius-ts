@@ -10,16 +10,25 @@
 	  @attrs[@nat] = @vat 
 	}
 	
-	action prematch { @prematch = data[0..p] if p > 0 }
+	action prematch {
+	  @prematch_end = p
+	  @prematch = data[0..p] if p > 0
+	}
 	
 	action _nameattr { mark_nat = p }
 	action nameattr { @nat = data[mark_nat..p-1] }
 	action _valattr { mark_vat = p }
 	action valattr { @vat = data[mark_vat..p-1] }
 	
-	action opentag { @flavor = :open }
-	action selftag { @flavor = :self }
+	action opentag  { @flavor = :open }
+	action selftag  { @flavor = :self }
 	action closetag { @flavor = :close }
+	
+	action stopparse {
+	  $stderr.puts "stopping at #{@data[0..p]}"
+	  @cursor = p;
+	  fbreak;
+	}
 	
 	# words
 	NameChar = [\-A-Za-z0-9._:?] ;
@@ -67,7 +76,11 @@ module Radius
     end
     
     def inspect
-      "<Radius::Scanner prefix=#{@prefix.inspect} tag=#{@starttag.inspect} flavor=#{@flavor.inspect} cursor=#{@cursor} attrs=#{@attrs.inspect}>"
+      "#<Radius::Scanner #{content.inspect} prefix=#{@prefix.inspect} tag=#{@starttag.inspect} flavor=#{@flavor.inspect} cursor=#{@cursor} attrs=#{@attrs.inspect}>"
+    end
+    
+    def content
+      @data[@prematch_end..@cursor-1]
     end
     
     def leftover
