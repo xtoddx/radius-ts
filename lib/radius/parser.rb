@@ -40,8 +40,12 @@ module Radius
         s = Scanner.new remainder
         s.parse
         @tokens << s.prematch
-        @tokens << s
-        remainder = s.leftover
+        if s.flavor == :tasteless
+          remainder = s.content + s.leftover
+        else
+          @tokens << s
+          remainder = s.leftover
+        end
       end
     end
     

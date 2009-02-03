@@ -44,17 +44,22 @@
   Q2Attr = Q2Char* >_valattr %valattr;
  
   Attr =  NameAttr space* "=" space* ('"' Q2Attr '"' | "'" Q1Attr "'") space* >_attr %attr;
-  Attrs = (space+ Attr* | empty);
+  Attrs = (space+ Attr* | empty) %{$stderr.puts "left attrs #{@attrs.inspect}"};
   
-  SelfClose = "/>" %selftag;
-  Trailer = ">" %opentag;
+  CloseTrailer = "/>" >{$stderr.puts "checking close"} %selftag;
+  OpenTrailer = ">" >{$stderr.puts "checking open"} %opentag;
   
-	OpenOrSelfTag = "<" Name Attrs (SelfClose | Trailer);
+  Trailer = (OpenTrailer | CloseTrailer)
+    >{$stderr.puts "looking for trailer #{@data[p..p+2]}"}
+    $err{$stderr.puts "couldn't find trailer #{@data[p-2..p+2]}"};
+  
+	OpenOrSelfTag = "<" Name Attrs Trailer;
 	CloseTag = "</" Name space* ">" %closetag;
 	
 	PreMatch = (^"<")* %prematch;
+	PostMatch = any*;
 	
-	main := PreMatch (OpenOrSelfTag | CloseTag)?;
+	main := PreMatch (OpenOrSelfTag | CloseTag)? PostMatch %stopparse;
 }%%
 
 module Radius
@@ -96,7 +101,7 @@ module Radius
     	%% write data;
     	%% write init;
     	%% write exec;
-    	@cursor = p
+    	$stderr.puts inspect
     end
   end
 end
