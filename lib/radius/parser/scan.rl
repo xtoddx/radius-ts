@@ -30,7 +30,6 @@
 	action closetag { @flavor = :close }
 	
 	action stopparse {
-	  $stderr.puts "stopping at #{data[0..p]}"
 	  @cursor = p;
 	  fbreak;
 	}
@@ -53,14 +52,12 @@
   Q2Attr = Q2Char* >_valattr %valattr;
  
   Attr =  NameAttr space* "=" space* ('"' Q2Attr '"' | "'" Q1Attr "'") space* >_attr %attr;
-  Attrs = (space+ Attr* | empty) %{$stderr.puts "left attrs #{@attrs.inspect}"};
+  Attrs = (space+ Attr* | empty);
   
-  CloseTrailer = "/>" >{$stderr.puts "checking close"} %selftag;
-  OpenTrailer = ">" >{$stderr.puts "checking open"} %opentag;
+  CloseTrailer = "/>" %selftag;
+  OpenTrailer = ">" %opentag;
   
-  Trailer = (OpenTrailer | CloseTrailer)
-    >{$stderr.puts "looking for trailer #{data[p..p+2]}"}
-    $err{$stderr.puts "couldn't find trailer #{data[p-2..p+2]}"};
+  Trailer = (OpenTrailer | CloseTrailer);
   
 	OpenOrSelfTag = Name Attrs? Trailer;
 	CloseTag = "/" Name space* ">" %closetag;
@@ -69,7 +66,6 @@
 	
 	main := |*
 	  SomeTag => {
-	    puts "ate tag #{data[@tagstart..p]}"
 	    tag = {:prefix=>@prefix, :name=>@starttag, :flavor => @flavor, :attrs => @attrs}
 	    @prefix = nil
 	    @name = nil
