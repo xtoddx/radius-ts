@@ -47,8 +47,7 @@ module Radius
         when :open
           @stack.push(ParseContainerTag.new(t[:name], t[:attrs]))
         when :self
-          replace = @context.render_tag(t[:name], t[:attrs])
-          @stack.last.contents << replace
+          @stack.last.contents << ParseTag.new {@context.render_tag(t[:name], t[:attrs])}
         when :close
           popped = @stack.pop
           raise WrongEndTagError.new(popped.name, t[:name], @stack) if popped.name != t[:name]
