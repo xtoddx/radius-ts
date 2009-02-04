@@ -1,5 +1,5 @@
 # line 1 "scan.rl"
-# line 81 "scan.rl"
+# line 82 "scan.rl"
 
 
 module Radius
@@ -7,20 +7,35 @@ module Radius
     def self.operate(prefix, data)
       buf = ""
       csel = ""
-      stack = []
-      p = 0
-      eof = data.length
       @prematch = ''
-      @prefix = prefix
       @starttag = nil
       @attrs = {}
       @flavor = :tasteless
       @cursor = 0
       @tagstart = 0
       @nodes = ['']
+      remainder = data.dup
 
+      until remainder.length == 0
+        p = perform_parse(prefix, remainder)
+        remainder = remainder[p..-1]
+      end
+
+      return @nodes
+    end
+    
+    private
+    def self.perform_parse(prefix, data)
+      stack = []
+      p = 0
+      ts = 0
+      te = 0
+      act = 0
+      eof = data.length
       
-# line 24 "scan.rb"
+      @prefix = prefix
+      
+# line 39 "scan.rb"
 class << self
 	attr_accessor :_parser_actions
 	private :_parser_actions, :_parser_actions=
@@ -360,9 +375,9 @@ class << self
 end
 self.parser_en_main = 49;
 
-# line 101 "scan.rl"
+# line 117 "scan.rl"
       
-# line 366 "scan.rb"
+# line 381 "scan.rb"
 begin
 	p ||= 0
 	pe ||= data.length
@@ -371,9 +386,9 @@ begin
 	te = nil
 	act = 0
 end
-# line 102 "scan.rl"
+# line 118 "scan.rl"
       
-# line 377 "scan.rb"
+# line 392 "scan.rb"
 begin
 	_klen, _trans, _keys, _acts, _nacts = nil
 	_goto_level = 0
@@ -408,7 +423,7 @@ begin
 ts = p
 		end
 # line 1 "scan.rl"
-# line 412 "scan.rb"
+# line 427 "scan.rb"
 		end # from state action switch
 	end
 	if _trigger_goto
@@ -557,12 +572,12 @@ when 16 then
 act = 1;		end
 # line 68 "scan.rl"
 when 17 then
-# line 76 "scan.rl"
+# line 77 "scan.rl"
 		begin
 act = 2;		end
-# line 76 "scan.rl"
+# line 77 "scan.rl"
 when 18 then
-# line 76 "scan.rl"
+# line 77 "scan.rl"
 		begin
 te = p+1
  begin 
@@ -570,7 +585,7 @@ te = p+1
 	    @tagstart = p
 	   end
 		end
-# line 76 "scan.rl"
+# line 77 "scan.rl"
 when 19 then
 # line 68 "scan.rl"
 		begin
@@ -582,11 +597,18 @@ p = p - 1; begin
 	    @flavor = :tasteless
 	    @attrs = {}
 	    @nodes << tag << ''
+      	begin
+		p += 1
+		_trigger_goto = true
+		_goto_level = _out
+		break
+	end
+
 	   end
 		end
 # line 68 "scan.rl"
 when 20 then
-# line 76 "scan.rl"
+# line 77 "scan.rl"
 		begin
 te = p
 p = p - 1; begin 
@@ -594,9 +616,9 @@ p = p - 1; begin
 	    @tagstart = p
 	   end
 		end
-# line 76 "scan.rl"
+# line 77 "scan.rl"
 when 21 then
-# line 76 "scan.rl"
+# line 77 "scan.rl"
 		begin
  begin p = ((te))-1; end
  begin 
@@ -604,7 +626,7 @@ when 21 then
 	    @tagstart = p
 	   end
 		end
-# line 76 "scan.rl"
+# line 77 "scan.rl"
 when 22 then
 # line 1 "scan.rl"
 		begin
@@ -618,6 +640,13 @@ when 22 then
 	    @flavor = :tasteless
 	    @attrs = {}
 	    @nodes << tag << ''
+      	begin
+		p += 1
+		_trigger_goto = true
+		_goto_level = _out
+		break
+	end
+
 	  end
 	when 2 then
 	begin begin p = ((te))-1; end
@@ -628,7 +657,7 @@ when 22 then
 end 
 			end
 # line 1 "scan.rl"
-# line 632 "scan.rb"
+# line 661 "scan.rb"
 			end # action switch
 		end
 	end
@@ -649,7 +678,7 @@ when 13 then
 		begin
 ts = nil;		end
 # line 1 "scan.rl"
-# line 653 "scan.rb"
+# line 682 "scan.rb"
 		end # to state action switch
 	end
 	if _trigger_goto
@@ -679,8 +708,8 @@ end
 	end
 	end
 	end
-# line 103 "scan.rl"
-      return @nodes
+# line 119 "scan.rl"
+      return p
     end
   end
 end

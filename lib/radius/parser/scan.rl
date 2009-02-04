@@ -72,6 +72,7 @@
 	    @flavor = :tasteless
 	    @attrs = {}
 	    @nodes << tag << ''
+      fbreak;
 	  };
 	  any => {
 	    @nodes.last << data[p]
@@ -85,22 +86,37 @@ module Radius
     def self.operate(prefix, data)
       buf = ""
       csel = ""
-      stack = []
-      p = 0
-      eof = data.length
       @prematch = ''
-      @prefix = prefix
       @starttag = nil
       @attrs = {}
       @flavor = :tasteless
       @cursor = 0
       @tagstart = 0
       @nodes = ['']
+      remainder = data.dup
 
+      until remainder.length == 0
+        p = perform_parse(prefix, remainder)
+        remainder = remainder[p..-1]
+      end
+
+      return @nodes
+    end
+    
+    private
+    def self.perform_parse(prefix, data)
+      stack = []
+      p = 0
+      ts = 0
+      te = 0
+      act = 0
+      eof = data.length
+      
+      @prefix = prefix
       %% write data;
       %% write init;
       %% write exec;
-      return @nodes
+      return p
     end
   end
 end
